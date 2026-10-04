@@ -1,0 +1,23 @@
+{
+  "files": {
+    "code": [
+      "api\\agent.py",
+      "api\\check_models.py",
+      "api\\main.py",
+      "data\\create_data.py",
+      "ml\\train_model.py"
+    ],
+    "document": [
+      "requirements.txt"
+    ],
+    "paper": [],
+    "image": [],
+    "video": []
+  },
+  "total_files": 6,
+  "total_words": 1239,
+  "needs_graph": false,
+  "warning": "Corpus is ~1,239 words - fits in a single context window. You may not need a graph.",
+  "skipped_sensitive": [],
+  "graphifyignore_patterns": 0
+}

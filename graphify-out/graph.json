@@ -1,0 +1,854 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "ml_pipeline",
+        "label": "ML Training Pipeline",
+        "members": [
+          "create_data_py",
+          "train_model_py",
+          "patient_data_csv",
+          "model_joblib",
+          "explainer_joblib"
+        ],
+        "relation": "forms pipeline"
+      },
+      {
+        "id": "api_endpoint",
+        "label": "Prediction API",
+        "members": [
+          "main_py",
+          "agent_py",
+          "assess_patient",
+          "PatientInput"
+        ],
+        "relation": "compose service"
+      },
+      {
+        "id": "inference_system",
+        "label": "Inference System",
+        "members": [
+          "agent_py",
+          "model_joblib",
+          "explainer_joblib",
+          "features_joblib",
+          "ChatGoogleGenerativeAI"
+        ],
+        "relation": "implements reasoning"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "agent.py",
+      "file_type": "code",
+      "source_file": "api\\agent.py",
+      "source_location": "L1",
+      "id": "api_agent_py"
+    },
+    {
+      "label": "prepare_patient_data()",
+      "file_type": "code",
+      "source_file": "api\\agent.py",
+      "source_location": "L76",
+      "id": "agent_prepare_patient_data"
+    },
+    {
+      "label": "get_top_shap_factors()",
+      "file_type": "code",
+      "source_file": "api\\agent.py",
+      "source_location": "L105",
+      "id": "agent_get_top_shap_factors"
+    },
+    {
+      "label": "assess_patient()",
+      "file_type": "code",
+      "source_file": "api\\agent.py",
+      "source_location": "L123",
+      "id": "agent_assess_patient"
+    },
+    {
+      "label": "Convert input data to match model features - FIXED to maintain correct order.",
+      "file_type": "rationale",
+      "source_file": "api\\agent.py",
+      "source_location": "L77",
+      "id": "agent_rationale_77"
+    },
+    {
+      "label": "Get top N risk factors using SHAP values.",
+      "file_type": "rationale",
+      "source_file": "api\\agent.py",
+      "source_location": "L106",
+      "id": "agent_rationale_106"
+    },
+    {
+      "label": "Main function: predict risk and generate explanation.",
+      "file_type": "rationale",
+      "source_file": "api\\agent.py",
+      "source_location": "L124",
+      "id": "agent_rationale_124"
+    },
+    {
+      "label": "check_models.py",
+      "file_type": "code",
+      "source_file": "api\\check_models.py",
+      "source_location": "L1",
+      "id": "api_check_models_py"
+    },
+    {
+      "label": "main.py",
+      "file_type": "code",
+      "source_file": "api\\main.py",
+      "source_location": "L1",
+      "id": "api_main_py"
+    },
+    {
+      "label": "PatientInput",
+      "file_type": "code",
+      "source_file": "api\\main.py",
+      "source_location": "L7",
+      "id": "main_patientinput"
+    },
+    {
+      "label": "BaseModel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "id": "basemodel"
+    },
+    {
+      "label": "health_check()",
+      "file_type": "code",
+      "source_file": "api\\main.py",
+      "source_location": "L25",
+      "id": "main_health_check"
+    },
+    {
+      "label": "predict()",
+      "file_type": "code",
+      "source_file": "api\\main.py",
+      "source_location": "L30",
+      "id": "main_predict"
+    },
+    {
+      "label": "create_data.py",
+      "file_type": "code",
+      "source_file": "data\\create_data.py",
+      "source_location": "L1",
+      "id": "data_create_data_py"
+    },
+    {
+      "label": "generate_synthetic_data()",
+      "file_type": "code",
+      "source_file": "data\\create_data.py",
+      "source_location": "L5",
+      "id": "create_data_generate_synthetic_data"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "data\\create_data.py",
+      "source_location": "L64",
+      "id": "create_data_main"
+    },
+    {
+      "label": "train_model.py",
+      "file_type": "code",
+      "source_file": "ml\\train_model.py",
+      "source_location": "L1",
+      "id": "ml_train_model_py"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "ml\\train_model.py",
+      "source_location": "L9",
+      "id": "train_model_main"
+    },
+    {
+      "label": "agent.py",
+      "file_type": "code",
+      "id": "agent_py"
+    },
+    {
+      "label": "main.py",
+      "file_type": "code",
+      "id": "main_py"
+    },
+    {
+      "label": "check_models.py",
+      "file_type": "code",
+      "id": "check_models_py"
+    },
+    {
+      "label": "create_data.py",
+      "file_type": "code",
+      "id": "create_data_py"
+    },
+    {
+      "label": "train_model.py",
+      "file_type": "code",
+      "id": "train_model_py"
+    },
+    {
+      "label": "requirements.txt",
+      "file_type": "code",
+      "id": "requirements_txt"
+    },
+    {
+      "label": "assess_patient()",
+      "file_type": "code",
+      "id": "assess_patient"
+    },
+    {
+      "label": "prepare_patient_data()",
+      "file_type": "code",
+      "id": "prepare_patient_data"
+    },
+    {
+      "label": "get_top_shap_factors()",
+      "file_type": "code",
+      "id": "get_top_shap_factors"
+    },
+    {
+      "label": "generate_synthetic_data()",
+      "file_type": "code",
+      "id": "generate_synthetic_data"
+    },
+    {
+      "label": "PatientInput",
+      "file_type": "code",
+      "id": "PatientInput"
+    },
+    {
+      "label": "ChatGoogleGenerativeAI",
+      "file_type": "code",
+      "id": "ChatGoogleGenerativeAI"
+    },
+    {
+      "label": "PromptTemplate",
+      "file_type": "code",
+      "id": "PromptTemplate"
+    },
+    {
+      "label": "XGBClassifier",
+      "file_type": "code",
+      "id": "XGBClassifier"
+    },
+    {
+      "label": "SHAP TreeExplainer",
+      "file_type": "code",
+      "id": "TreeExplainer"
+    },
+    {
+      "label": "FastAPI",
+      "file_type": "code",
+      "id": "FastAPI"
+    },
+    {
+      "label": "xgboost",
+      "file_type": "code",
+      "id": "xgboost_lib"
+    },
+    {
+      "label": "scikit-learn",
+      "file_type": "code",
+      "id": "sklearn_lib"
+    },
+    {
+      "label": "shap",
+      "file_type": "code",
+      "id": "shap_lib"
+    },
+    {
+      "label": "pandas",
+      "file_type": "code",
+      "id": "pandas_lib"
+    },
+    {
+      "label": "langchain",
+      "file_type": "code",
+      "id": "langchain_lib"
+    },
+    {
+      "label": "joblib",
+      "file_type": "code",
+      "id": "joblib_lib"
+    },
+    {
+      "label": "patient_readmission_data.csv",
+      "file_type": "document",
+      "id": "patient_data_csv"
+    },
+    {
+      "label": "model.joblib",
+      "file_type": "document",
+      "id": "model_joblib"
+    },
+    {
+      "label": "explainer.joblib",
+      "file_type": "document",
+      "id": "explainer_joblib"
+    },
+    {
+      "label": "features.joblib",
+      "file_type": "document",
+      "id": "features_joblib"
+    }
+  ],
+  "edges": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "_src": "api_agent_py",
+      "_tgt": "agent_prepare_patient_data",
+      "source": "api_agent_py",
+      "target": "agent_prepare_patient_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L105",
+      "weight": 1.0,
+      "_src": "api_agent_py",
+      "_tgt": "agent_get_top_shap_factors",
+      "source": "api_agent_py",
+      "target": "agent_get_top_shap_factors"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L123",
+      "weight": 1.0,
+      "_src": "api_agent_py",
+      "_tgt": "agent_assess_patient",
+      "source": "api_agent_py",
+      "target": "agent_assess_patient"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "_src": "agent_assess_patient",
+      "_tgt": "agent_prepare_patient_data",
+      "source": "agent_prepare_patient_data",
+      "target": "agent_assess_patient"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_src": "agent_rationale_77",
+      "_tgt": "agent_prepare_patient_data",
+      "source": "agent_prepare_patient_data",
+      "target": "agent_rationale_77"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L148",
+      "weight": 1.0,
+      "_src": "agent_assess_patient",
+      "_tgt": "agent_get_top_shap_factors",
+      "source": "agent_get_top_shap_factors",
+      "target": "agent_assess_patient"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_src": "agent_rationale_106",
+      "_tgt": "agent_get_top_shap_factors",
+      "source": "agent_get_top_shap_factors",
+      "target": "agent_rationale_106"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\agent.py",
+      "source_location": "L124",
+      "weight": 1.0,
+      "_src": "agent_rationale_124",
+      "_tgt": "agent_assess_patient",
+      "source": "agent_assess_patient",
+      "target": "agent_rationale_124"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api\\main.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_src": "main_predict",
+      "_tgt": "agent_assess_patient",
+      "source": "agent_assess_patient",
+      "target": "main_predict"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\main.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "api_main_py",
+      "_tgt": "FastAPI",
+      "source": "api_main_py",
+      "target": "FastAPI"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\main.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "api_main_py",
+      "_tgt": "main_patientinput",
+      "source": "api_main_py",
+      "target": "main_patientinput"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\main.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_src": "api_main_py",
+      "_tgt": "main_health_check",
+      "source": "api_main_py",
+      "target": "main_health_check"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\main.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "api_main_py",
+      "_tgt": "main_predict",
+      "source": "api_main_py",
+      "target": "main_predict"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\main.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "main_patientinput",
+      "_tgt": "basemodel",
+      "source": "main_patientinput",
+      "target": "basemodel"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "data\\create_data.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "data_create_data_py",
+      "_tgt": "create_data_generate_synthetic_data",
+      "source": "data_create_data_py",
+      "target": "create_data_generate_synthetic_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "data\\create_data.py",
+      "source_location": "L64",
+      "weight": 1.0,
+      "_src": "data_create_data_py",
+      "_tgt": "create_data_main",
+      "source": "data_create_data_py",
+      "target": "create_data_main"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "data\\create_data.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_src": "create_data_main",
+      "_tgt": "create_data_generate_synthetic_data",
+      "source": "create_data_generate_synthetic_data",
+      "target": "create_data_main"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ml\\train_model.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "ml_train_model_py",
+      "_tgt": "train_model_main",
+      "source": "ml_train_model_py",
+      "target": "train_model_main"
+    },
+    {
+      "relation": "defines function",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "assess_patient",
+      "source": "agent_py",
+      "target": "assess_patient"
+    },
+    {
+      "relation": "defines function",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "prepare_patient_data",
+      "source": "agent_py",
+      "target": "prepare_patient_data"
+    },
+    {
+      "relation": "defines function",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "get_top_shap_factors",
+      "source": "agent_py",
+      "target": "get_top_shap_factors"
+    },
+    {
+      "relation": "loads artifact",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "model_joblib",
+      "source": "agent_py",
+      "target": "model_joblib"
+    },
+    {
+      "relation": "loads artifact",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "explainer_joblib",
+      "source": "agent_py",
+      "target": "explainer_joblib"
+    },
+    {
+      "relation": "loads artifact",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "features_joblib",
+      "source": "agent_py",
+      "target": "features_joblib"
+    },
+    {
+      "relation": "imports class",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "ChatGoogleGenerativeAI",
+      "source": "agent_py",
+      "target": "ChatGoogleGenerativeAI"
+    },
+    {
+      "relation": "imports class",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "PromptTemplate",
+      "source": "agent_py",
+      "target": "PromptTemplate"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "joblib_lib",
+      "source": "agent_py",
+      "target": "joblib_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "pandas_lib",
+      "source": "agent_py",
+      "target": "pandas_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "agent_py",
+      "_tgt": "langchain_lib",
+      "source": "agent_py",
+      "target": "langchain_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "main_py",
+      "_tgt": "agent_py",
+      "source": "agent_py",
+      "target": "main_py"
+    },
+    {
+      "relation": "imports framework",
+      "confidence": "EXTRACTED",
+      "_src": "main_py",
+      "_tgt": "FastAPI",
+      "source": "main_py",
+      "target": "FastAPI"
+    },
+    {
+      "relation": "calls function",
+      "confidence": "EXTRACTED",
+      "_src": "main_py",
+      "_tgt": "assess_patient",
+      "source": "main_py",
+      "target": "assess_patient"
+    },
+    {
+      "relation": "defines class",
+      "confidence": "EXTRACTED",
+      "_src": "main_py",
+      "_tgt": "PatientInput",
+      "source": "main_py",
+      "target": "PatientInput"
+    },
+    {
+      "relation": "queries models",
+      "confidence": "INFERRED",
+      "_src": "check_models_py",
+      "_tgt": "ChatGoogleGenerativeAI",
+      "source": "check_models_py",
+      "target": "ChatGoogleGenerativeAI"
+    },
+    {
+      "relation": "defines function",
+      "confidence": "EXTRACTED",
+      "_src": "create_data_py",
+      "_tgt": "generate_synthetic_data",
+      "source": "create_data_py",
+      "target": "generate_synthetic_data"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "create_data_py",
+      "_tgt": "pandas_lib",
+      "source": "create_data_py",
+      "target": "pandas_lib"
+    },
+    {
+      "relation": "reads data",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "patient_data_csv",
+      "source": "train_model_py",
+      "target": "patient_data_csv"
+    },
+    {
+      "relation": "creates instance",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "XGBClassifier",
+      "source": "train_model_py",
+      "target": "XGBClassifier"
+    },
+    {
+      "relation": "creates instance",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "TreeExplainer",
+      "source": "train_model_py",
+      "target": "TreeExplainer"
+    },
+    {
+      "relation": "saves artifact",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "model_joblib",
+      "source": "train_model_py",
+      "target": "model_joblib"
+    },
+    {
+      "relation": "saves artifact",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "explainer_joblib",
+      "source": "train_model_py",
+      "target": "explainer_joblib"
+    },
+    {
+      "relation": "saves artifact",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "features_joblib",
+      "source": "train_model_py",
+      "target": "features_joblib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "xgboost_lib",
+      "source": "train_model_py",
+      "target": "xgboost_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "sklearn_lib",
+      "source": "train_model_py",
+      "target": "sklearn_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "shap_lib",
+      "source": "train_model_py",
+      "target": "shap_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "pandas_lib",
+      "source": "train_model_py",
+      "target": "pandas_lib"
+    },
+    {
+      "relation": "imports module",
+      "confidence": "EXTRACTED",
+      "_src": "train_model_py",
+      "_tgt": "joblib_lib",
+      "source": "train_model_py",
+      "target": "joblib_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "xgboost_lib",
+      "source": "requirements_txt",
+      "target": "xgboost_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "sklearn_lib",
+      "source": "requirements_txt",
+      "target": "sklearn_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "shap_lib",
+      "source": "requirements_txt",
+      "target": "shap_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "pandas_lib",
+      "source": "requirements_txt",
+      "target": "pandas_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "langchain_lib",
+      "source": "requirements_txt",
+      "target": "langchain_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "joblib_lib",
+      "source": "requirements_txt",
+      "target": "joblib_lib"
+    },
+    {
+      "relation": "specifies dependency",
+      "confidence": "EXTRACTED",
+      "_src": "requirements_txt",
+      "_tgt": "FastAPI",
+      "source": "requirements_txt",
+      "target": "FastAPI"
+    },
+    {
+      "relation": "calls function",
+      "confidence": "EXTRACTED",
+      "_src": "assess_patient",
+      "_tgt": "prepare_patient_data",
+      "source": "assess_patient",
+      "target": "prepare_patient_data"
+    },
+    {
+      "relation": "calls function",
+      "confidence": "EXTRACTED",
+      "_src": "assess_patient",
+      "_tgt": "get_top_shap_factors",
+      "source": "assess_patient",
+      "target": "get_top_shap_factors"
+    },
+    {
+      "relation": "uses instance",
+      "confidence": "EXTRACTED",
+      "_src": "assess_patient",
+      "_tgt": "ChatGoogleGenerativeAI",
+      "source": "assess_patient",
+      "target": "ChatGoogleGenerativeAI"
+    },
+    {
+      "relation": "generates output",
+      "confidence": "INFERRED",
+      "_src": "generate_synthetic_data",
+      "_tgt": "patient_data_csv",
+      "source": "generate_synthetic_data",
+      "target": "patient_data_csv"
+    },
+    {
+      "relation": "belongs to library",
+      "confidence": "EXTRACTED",
+      "_src": "ChatGoogleGenerativeAI",
+      "_tgt": "langchain_lib",
+      "source": "ChatGoogleGenerativeAI",
+      "target": "langchain_lib"
+    },
+    {
+      "relation": "belongs to library",
+      "confidence": "EXTRACTED",
+      "_src": "PromptTemplate",
+      "_tgt": "langchain_lib",
+      "source": "PromptTemplate",
+      "target": "langchain_lib"
+    },
+    {
+      "relation": "belongs to library",
+      "confidence": "EXTRACTED",
+      "_src": "XGBClassifier",
+      "_tgt": "xgboost_lib",
+      "source": "XGBClassifier",
+      "target": "xgboost_lib"
+    },
+    {
+      "relation": "belongs to library",
+      "confidence": "EXTRACTED",
+      "_src": "TreeExplainer",
+      "_tgt": "shap_lib",
+      "source": "TreeExplainer",
+      "target": "shap_lib"
+    }
+  ]
+}

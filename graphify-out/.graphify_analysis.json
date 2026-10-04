@@ -1,0 +1,130 @@
+{
+  "communities": {
+    "0": [
+      "TreeExplainer",
+      "XGBClassifier",
+      "explainer_joblib",
+      "features_joblib",
+      "joblib_lib",
+      "model_joblib",
+      "requirements_txt",
+      "shap_lib",
+      "sklearn_lib",
+      "train_model_py",
+      "xgboost_lib"
+    ],
+    "1": [
+      "FastAPI",
+      "PatientInput",
+      "api_main_py",
+      "basemodel",
+      "main_health_check",
+      "main_patientinput",
+      "main_predict",
+      "main_py"
+    ],
+    "2": [
+      "ChatGoogleGenerativeAI",
+      "PromptTemplate",
+      "agent_py",
+      "assess_patient",
+      "check_models_py",
+      "get_top_shap_factors",
+      "langchain_lib",
+      "prepare_patient_data"
+    ],
+    "3": [
+      "agent_assess_patient",
+      "agent_get_top_shap_factors",
+      "agent_prepare_patient_data",
+      "agent_rationale_106",
+      "agent_rationale_124",
+      "agent_rationale_77",
+      "api_agent_py"
+    ],
+    "4": [
+      "create_data_py",
+      "generate_synthetic_data",
+      "pandas_lib",
+      "patient_data_csv"
+    ],
+    "5": [
+      "create_data_generate_synthetic_data",
+      "create_data_main",
+      "data_create_data_py"
+    ],
+    "6": [
+      "ml_train_model_py",
+      "train_model_main"
+    ],
+    "7": [
+      "api_check_models_py"
+    ]
+  },
+  "cohesion": {},
+  "god_nodes": [
+    {
+      "id": "agent_assess_patient",
+      "label": "assess_patient()",
+      "degree": 5
+    },
+    {
+      "id": "agent_prepare_patient_data",
+      "label": "prepare_patient_data()",
+      "degree": 3
+    },
+    {
+      "id": "agent_get_top_shap_factors",
+      "label": "get_top_shap_factors()",
+      "degree": 3
+    },
+    {
+      "id": "main_patientinput",
+      "label": "PatientInput",
+      "degree": 2
+    },
+    {
+      "id": "main_predict",
+      "label": "predict()",
+      "degree": 2
+    },
+    {
+      "id": "create_data_generate_synthetic_data",
+      "label": "generate_synthetic_data()",
+      "degree": 2
+    },
+    {
+      "id": "create_data_main",
+      "label": "main()",
+      "degree": 2
+    },
+    {
+      "id": "agent_rationale_77",
+      "label": "Convert input data to match model features - FIXED to maintain correct order.",
+      "degree": 1
+    },
+    {
+      "id": "agent_rationale_106",
+      "label": "Get top N risk factors using SHAP values.",
+      "degree": 1
+    },
+    {
+      "id": "agent_rationale_124",
+      "label": "Main function: predict risk and generate explanation.",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "predict()",
+      "target": "assess_patient()",
+      "source_files": [
+        "api\\main.py",
+        "api\\agent.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities; peripheral node `predict()` unexpectedly reaches hub `assess_patient()`"
+    }
+  ]
+}

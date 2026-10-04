@@ -1,0 +1,130 @@
+/* Dashboard page styles */
+
+.dash-stats {
+  margin-bottom: var(--space-2xl);
+}
+
+.dash-charts {
+  margin-bottom: var(--space-2xl);
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  min-height: 200px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.pie-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-sm);
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Recent table */
+.dash-recent {
+  margin-top: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.dash-recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0;
+}
+
+.dash-table-wrapper {
+  overflow-x: auto;
+}
+
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.dash-table th {
+  text-align: left;
+  padding: var(--space-md) var(--space-lg);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(248, 250, 252, 0.5); /* bg-background/50 */
+}
+
+.dash-table td {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.dash-table-row {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.dash-table-row:hover {
+  background: var(--bg-card-hover);
+}
+
+.text-muted { color: var(--text-muted); }
+.text-mono { font-family: var(--font-mono); font-weight: 600; }
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-sm);
+}
+
+.stat-header .stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.stat-icon {
+  color: var(--accent-primary);
+  opacity: 0.7;
+}
+
+.stat-icon.error {
+  color: var(--error);
+}

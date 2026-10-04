@@ -1,0 +1,13 @@
+xgboost
+scikit-learn
+shap
+pandas
+numpy
+langchain
+langchain-google-genai
+google-genai
+fastapi
+uvicorn[standard]
+python-dotenv
+joblib
+pydantic
