@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './App.css';
+import Logo from './components/Logo';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -15,8 +16,7 @@ function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen w-[232px] bg-[#FFFFFF] border-r border-[#DDD8CC] z-40 flex flex-col justify-between select-none">
       <div className="flex flex-col">
         <div className="pt-7 pb-6 px-5 border-b border-[#DDD8CC]">
-          <div className="font-headline-lg text-headline-lg font-semibold tracking-wide text-[#0F5C5A] leading-tight">AURA</div>
-          <div className="text-[12px] leading-4 text-[#5B625F] mt-1">AI-Utilized Readmission Assessment</div>
+          <Logo variant="lockup" tone="dark" size={24} showSubtitle />
         </div>
         <nav className="flex flex-col py-3">
           <NavLink 

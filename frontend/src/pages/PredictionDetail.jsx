@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchPrediction } from '../api';
+import { RISK_THRESHOLDS } from '../config';
 
 export default function PredictionDetail() {
   const { id } = useParams();
@@ -137,16 +138,16 @@ export default function PredictionDetail() {
                 
                 {/* Segmented Scale Track */}
                 <div className="h-[8px] w-full rounded-[4px] flex overflow-hidden border border-[#DDD8CC]/40">
-                  <div className="w-[30%] bg-[#E4F1E9]" title="Low risk zone (0-30%)"></div>
-                  <div className="w-[30%] bg-[#F8EBD3]" title="Medium risk zone (30-60%)"></div>
-                  <div className="w-[40%] bg-[#F6E0DC]" title="High risk zone (60-100%)"></div>
+                  <div className={`bg-[#E4F1E9]`} style={{ width: `${RISK_THRESHOLDS.LOW_MAX}%` }} title={`Low risk zone (0-${RISK_THRESHOLDS.LOW_MAX}%)`}></div>
+                  <div className={`bg-[#F8EBD3]`} style={{ width: `${RISK_THRESHOLDS.MED_MAX - RISK_THRESHOLDS.LOW_MAX}%` }} title={`Medium risk zone (${RISK_THRESHOLDS.LOW_MAX}-${RISK_THRESHOLDS.MED_MAX}%)`}></div>
+                  <div className={`bg-[#F6E0DC]`} style={{ width: `${100 - RISK_THRESHOLDS.MED_MAX}%` }} title={`High risk zone (${RISK_THRESHOLDS.MED_MAX}-100%)`}></div>
                 </div>
                 
                 {/* Scale Labels */}
                 <div className="relative w-full font-['IBM_Plex_Sans'] text-[12px] text-[#5B625F] mt-2 h-4">
                   <span className="absolute left-0">0%</span>
-                  <span className="absolute left-[30%] -translate-x-1/2">30%</span>
-                  <span className="absolute left-[60%] -translate-x-1/2">60%</span>
+                  <span className="absolute -translate-x-1/2" style={{ left: `${RISK_THRESHOLDS.LOW_MAX}%` }}>{RISK_THRESHOLDS.LOW_MAX}%</span>
+                  <span className="absolute -translate-x-1/2" style={{ left: `${RISK_THRESHOLDS.MED_MAX}%` }}>{RISK_THRESHOLDS.MED_MAX}%</span>
                   <span className="absolute right-0">100%</span>
                 </div>
               </div>
@@ -217,40 +218,40 @@ export default function PredictionDetail() {
             {/* Diverging Bar Chart Container */}
             <div className="mt-4 flex flex-col">
               {/* Column Orientation Header */}
-              <div className="grid grid-cols-12 pb-2 text-[12px] font-['IBM_Plex_Sans'] text-[#5B625F] border-b border-[#DDD8CC]">
-                <div className="col-span-5 text-left">Factor</div>
-                <div className="col-span-3 text-right pr-3">Decreases risk</div>
-                <div className="col-span-1 text-center font-['JetBrains_Mono']">0</div>
-                <div className="col-span-3 text-left pl-3">Increases risk</div>
+              <div className="flex items-center pb-2 text-[12px] font-['IBM_Plex_Sans'] text-[#5B625F] border-b border-[#DDD8CC] gap-4">
+                <div className="w-5/12 text-left">Factor</div>
+                <div className="w-7/12 flex relative">
+                  <div className="flex-1 text-right pr-2">Decreases risk</div>
+                  <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-[#DDD8CC]"></div>
+                  <div className="flex-1 text-left pl-2">Increases risk</div>
+                </div>
               </div>
               
               {/* Chart Rows with Centered Zero Axis */}
               <div className="relative py-2">
-                {/* Vertical 0-hairline */}
-                <div className="absolute top-0 bottom-0 left-[62.5%] w-[1px] bg-[#DDD8CC] z-0"></div>
-                
                 {shapData.length > 0 ? shapData.map((f, i) => (
-                  <div key={i} className={`grid grid-cols-12 items-center py-3.5 relative z-10 ${i > 0 ? 'border-t border-[#DDD8CC]/30' : ''}`}>
-                    <div className="col-span-5 font-['IBM_Plex_Sans'] text-[14px] text-[#1B1F1E] pr-2 truncate" title={f.label}>
+                  <div key={i} className={`flex items-center py-3.5 relative z-10 gap-4 ${i > 0 ? 'border-t border-[#DDD8CC]/30' : ''}`}>
+                    <div className="w-5/12 font-['IBM_Plex_Sans'] text-[14px] text-[#1B1F1E] line-clamp-2" title={f.label}>
                       {f.label}
                     </div>
-                    {f.increases ? (
-                      <>
-                        <div className="col-span-3"></div>
-                        <div className="col-span-1"></div>
-                        <div className="col-span-3 flex justify-start items-center pl-1">
-                          <div className="h-[14px] bg-[#B3382C] rounded-r-[2px]" style={{ width: `${f.width}%` }}></div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="col-span-3 flex justify-end items-center pr-1">
-                          <div className="h-[14px] bg-[#0F5C5A] rounded-l-[2px]" style={{ width: `${f.width}%` }}></div>
-                        </div>
-                        <div className="col-span-1"></div>
-                        <div className="col-span-3"></div>
-                      </>
-                    )}
+                    <div className="w-7/12 flex relative items-center h-[14px]">
+                      {/* Zero line */}
+                      <div className="absolute left-1/2 -top-3.5 -bottom-3.5 w-[1px] bg-[#DDD8CC] z-0"></div>
+                      
+                      {/* Left bar (Decreases risk) */}
+                      <div className="flex-1 flex justify-end h-full z-10">
+                        {!f.increases && (
+                          <div className="h-full bg-[#0F5C5A] rounded-l-[2px]" style={{ width: `${f.width}%` }}></div>
+                        )}
+                      </div>
+                      
+                      {/* Right bar (Increases risk) */}
+                      <div className="flex-1 flex justify-start h-full z-10 pl-[1px]">
+                        {f.increases && (
+                          <div className="h-full bg-[#B3382C] rounded-r-[2px]" style={{ width: `${f.width}%` }}></div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )) : (
                   <div className="py-6 text-center text-[14px] text-[#5B625F]">No significant factors identified.</div>
@@ -258,19 +259,19 @@ export default function PredictionDetail() {
               </div>
               
               {/* Legend & Citation Footnote */}
-              <div className="pt-4 mt-2 border-t border-[#DDD8CC] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="pt-4 mt-2 border-t border-[#DDD8CC] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-5 font-['IBM_Plex_Sans'] text-[13px] text-[#1B1F1E]">
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#B3382C] inline-block"></span>
                     Increases risk
                   </span>
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#0F5C5A] inline-block"></span>
                     Decreases risk
                   </span>
                 </div>
-                <p className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">
-                  Based on SHAP values from the prediction model.
+                <p className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F] text-right truncate">
+                  Based on SHAP values.
                 </p>
               </div>
             </div>

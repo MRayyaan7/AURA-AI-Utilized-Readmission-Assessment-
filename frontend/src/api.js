@@ -1,5 +1,5 @@
 /**
- * API client for the Hospital Readmission Risk backend.
+ * API client for the AURA API backend.
  * All endpoints are relative — Vite's dev proxy forwards /api/* to FastAPI.
  */
 

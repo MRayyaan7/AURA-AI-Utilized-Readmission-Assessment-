@@ -1,5 +1,5 @@
 """
-FastAPI application for the Hospital Readmission Risk Predictor.
+FastAPI application for the AURA API.
 
 Provides REST endpoints for patient risk assessment, prediction history,
 dashboard statistics, and health monitoring.
@@ -120,8 +120,9 @@ async def lifespan(app: FastAPI):
 # FastAPI app
 # ---------------------------------------------------------------------------
 app = FastAPI(
-    title="Hospital Readmission Risk API",
+    title="AURA API",
     description=(
+        "AURA — AI-Utilized Readmission Assessment. "
         "Predicts 30-day hospital readmission risk using XGBoost + SHAP, "
         "with optional Gemini LLM clinical explanations."
     ),

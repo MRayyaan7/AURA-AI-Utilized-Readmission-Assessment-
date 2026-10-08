@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../components/Logo';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function Login() {
       {/* Left Half: Deep Teal Hero Editorial Column */}
       <section className="w-full md:w-1/2 bg-[#0F5C5A] min-h-[360px] md:min-h-screen p-8 md:p-16 lg:p-20 flex flex-col justify-between select-none">
         <div>
-          <span className="font-serif-source text-white tracking-wide text-2xl font-semibold">AURA</span>
+          <Logo variant="lockup" tone="light" size={28} />
         </div>
 
         <div className="my-auto py-12 md:py-0 max-w-xl">
@@ -102,7 +103,6 @@ export default function Login() {
                 type="email" 
                 id="email" 
                 name="email" 
-                defaultValue="eleanor.vance@hospital.edu"
                 placeholder="name@hospital.edu" 
                 className="w-full h-[44px] px-3.5 bg-white border border-[#DDD8CC] rounded-[6px] text-[15px] text-[#1B1F1E] placeholder-[#5B625F]/60 transition-colors"
                 required
@@ -119,7 +119,7 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   id="password" 
                   name="password" 
-                  defaultValue="password123"
+                  placeholder="Password"
                   className={`${error ? 'input-error border-[#B3382C]' : 'border-[#DDD8CC]'} w-full h-[44px] pl-3.5 pr-16 bg-white border rounded-[6px] text-[15px] text-[#1B1F1E] transition-colors`}
                   required
                 />

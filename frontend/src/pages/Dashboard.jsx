@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { fetchDashboardStats, fetchPredictions } from '../api';
+import { RISK_THRESHOLDS } from '../config';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -111,11 +112,11 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-6">
             <div>
               <h2 className="font-headline-md text-[20px] font-semibold text-[#1B1F1E] leading-[26px]">Recent risk scores</h2>
-              <p className="font-body-md text-[13px] text-[#5B625F] mt-1">Last {recent.length || 0} assessments (threshold line at 60%)</p>
+              <p className="font-body-md text-[13px] text-[#5B625F] mt-1">Last {recent.length || 0} assessments (threshold line at {RISK_THRESHOLDS.MED_MAX}%)</p>
             </div>
             <div className="flex items-center gap-1.5 text-[12px] text-[#B3382C] font-body-md">
               <span className="inline-block w-3 border-t border-dashed border-[#B3382C]"></span>
-              <span>High risk threshold (60%)</span>
+              <span>High risk threshold ({RISK_THRESHOLDS.MED_MAX}%)</span>
             </div>
           </div>
           
@@ -131,8 +132,8 @@ export default function Dashboard() {
               <line stroke="#DDD8CC" strokeWidth="1" x1="38" x2="540" y1="118" y2="118"></line>
               <text fill="#5B625F" fontFamily="'Source Sans 3', sans-serif" fontSize="11" textAnchor="end" x="32" y="122">25%</text>
               
-              {/* 60% Reference Line */}
-              <line stroke="#B3382C" strokeDasharray="3,3" strokeWidth="1" x1="38" x2="540" y1="67.6" y2="67.6"></line>
+              {/* Dynamic Reference Line */}
+              <line stroke="#B3382C" strokeDasharray="3,3" strokeWidth="1" x1="38" x2="540" y1={154 - (RISK_THRESHOLDS.MED_MAX / 100) * 144} y2={154 - (RISK_THRESHOLDS.MED_MAX / 100) * 144}></line>
               
               <line stroke="#DDD8CC" strokeWidth="1" x1="38" x2="540" y1="154" y2="154"></line>
               <text fill="#5B625F" fontFamily="'Source Sans 3', sans-serif" fontSize="11" textAnchor="end" x="32" y="157">0%</text>

@@ -1,5 +1,5 @@
 """
-Hospital Readmission Risk Assessment Engine.
+AURA Assessment Engine.
 
 Predicts 30-day readmission probability using an XGBoost classifier,
 explains predictions via SHAP, and generates physician-friendly
