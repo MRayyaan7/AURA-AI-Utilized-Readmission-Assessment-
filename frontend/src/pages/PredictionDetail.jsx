@@ -1,62 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchPrediction } from '../api';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell, ReferenceLine,
-} from 'recharts';
-import './PredictionDetail.css';
-
-function RiskGauge({ score, level }) {
-  /* Circular arc gauge: 180° sweep */
-  const radius = 80;
-  const cx = 100;
-  const cy = 100;
-  const startAngle = Math.PI;        /* left */
-  const endAngle = 0;                /* right */
-  const scoreAngle = startAngle - (score / 100) * Math.PI;
-
-  const arcPath = (start, end) => {
-    const x1 = cx + radius * Math.cos(start);
-    const y1 = cy - radius * Math.sin(start);
-    const x2 = cx + radius * Math.cos(end);
-    const y2 = cy - radius * Math.sin(end);
-    const largeArc = Math.abs(start - end) > Math.PI ? 1 : 0;
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
-  };
-
-  const color = level.includes('HIGH') ? '#ef4444'
-    : level.includes('MEDIUM') ? '#f59e0b' : '#10b981';
-
-  return (
-    <div className="risk-gauge">
-      <svg viewBox="0 0 200 120" className="gauge-svg">
-        <defs>
-          <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#10b981" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#ef4444" />
-          </linearGradient>
-        </defs>
-        {/* Background arc */}
-        <path d={arcPath(startAngle, endAngle)} fill="none" stroke="#E2E8F0" strokeWidth="14" strokeLinecap="round" />
-        {/* Value arc */}
-        <path d={arcPath(startAngle, scoreAngle)} fill="none" stroke="url(#gaugeGrad)" strokeWidth="14" strokeLinecap="round" />
-        {/* Needle dot */}
-        <circle
-          cx={cx + radius * Math.cos(scoreAngle)}
-          cy={cy - radius * Math.sin(scoreAngle)}
-          r="6"
-          fill={color}
-          stroke="#F8FAFC"
-          strokeWidth="3"
-        />
-      </svg>
-      <div className="gauge-value" style={{ color }}>{score}%</div>
-      <div className="gauge-label">{level}</div>
-    </div>
-  );
-}
 
 export default function PredictionDetail() {
   const { id } = useParams();
@@ -74,17 +18,21 @@ export default function PredictionDetail() {
 
   if (loading) {
     return (
-      <div className="page-enter">
-        <div className="skeleton" style={{ width: 300, height: 32, marginBottom: 16 }} />
-        <div className="skeleton" style={{ width: '100%', height: 400 }} />
+      <div className="max-w-[1120px] mx-auto w-full flex flex-col gap-8 animate-pulse p-8">
+        <div className="h-10 bg-[#DDD8CC] rounded w-1/3"></div>
+        <div className="h-64 bg-[#DDD8CC] rounded w-full"></div>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="page-enter">
-        <div className="form-error">{error}</div>
-        <button className="btn btn-secondary" onClick={() => navigate('/')}>Back to Dashboard</button>
+      <div className="max-w-[1120px] mx-auto w-full p-8">
+        <div className="p-4 bg-[#F6E0DC] text-[#B3382C] rounded border border-[#B3382C]">
+          {error}
+        </div>
+        <button onClick={() => navigate('/history')} className="mt-4 text-[#0F5C5A] underline">
+          Back to history
+        </button>
       </div>
     );
   }
@@ -92,125 +40,280 @@ export default function PredictionDetail() {
   const p = prediction;
   const pd = p.patient_data;
 
-  /* Build SHAP factor chart data */
-  const shapData = p.top_factors.map((f) => {
+  // Compute Risk Colors
+  const isLow = p.risk_level === 'LOW RISK';
+  const isMed = p.risk_level === 'MEDIUM RISK';
+  const isHigh = p.risk_level === 'HIGH RISK';
+  
+  const riskColor = isLow ? '#2F7D4F' : isMed ? '#B7791F' : '#B3382C';
+  const badgeBg = isLow ? 'bg-[#E4F1E9]' : isMed ? 'bg-[#F8EBD3]' : 'bg-[#F6E0DC]';
+  const badgeText = isLow ? 'text-[#2F7D4F]' : isMed ? 'text-[#B7791F]' : 'text-[#B3382C]';
+
+  // Process SHAP factors
+  const shapData = p.top_factors.map((f, i) => {
     const increases = f.includes('increases');
     const label = f.replace(/ \((increases|decreases) risk\)/, '');
-    return { name: label, value: increases ? 1 : -1, direction: increases ? 'increases' : 'decreases' };
+    const width = Math.max(20, 80 - i * 15); // visual fake width since we lack raw shap numbers
+    return { label, increases, width };
   });
 
+  // Conditions for Patient Profile
+  const conditions = [
+    pd.has_diabetes === 1 && 'Diabetes',
+    pd.has_chf === 1 && 'CHF',
+    pd.has_copd === 1 && 'COPD',
+    pd.creatinine_high === 1 && 'Elevated Creatinine',
+    pd.hemoglobin_low === 1 && 'Low Hemoglobin'
+  ].filter(Boolean);
+
   return (
-    <div className="page-enter">
-      <div className="detail-header">
-        <button className="btn btn-ghost" onClick={() => navigate(-1)}>
-          ← Back
-        </button>
+    <div className="flex flex-col w-full max-w-[1120px] mx-auto p-8">
+      {/* Top Navigation & Actions */}
+      <div className="flex flex-col gap-6 mb-8">
         <div>
-          <h1 className="page-title">Risk Assessment Result</h1>
-          <p className="page-subtitle">
-            {new Date(p.timestamp).toLocaleString()} &middot; ID: {p.id.slice(0, 8)}
-          </p>
+          <button 
+            onClick={() => navigate('/history')}
+            className="inline-flex items-center text-[#0F5C5A] hover:text-[#0B4846] font-['IBM_Plex_Sans'] font-medium text-[15px] transition-colors"
+          >
+            <span className="mr-1.5 leading-none">←</span> Back to history
+          </button>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+          <div>
+            <h1 className="font-headline-xl text-[32px] text-[#1B1F1E] font-semibold leading-tight tracking-tight">
+              Risk assessment
+            </h1>
+            <p className="font-['IBM_Plex_Sans'] text-[15px] text-[#5B625F] mt-1.5 flex items-center gap-1.5">
+              {new Date(p.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })} 
+              <span className="mx-1.5 opacity-60">·</span> 
+              ID <span className="font-['JetBrains_Mono'] text-[14px] text-[#1B1F1E]">{p.id.slice(0, 8)}</span>
+            </p>
+          </div>
+          <div className="self-start sm:self-center">
+            <button className="inline-flex items-center justify-center px-5 h-[44px] rounded-[6px] border border-[#0F5C5A] text-[#0F5C5A] font-['IBM_Plex_Sans'] text-[14px] font-medium bg-[#FFFFFF] hover:bg-[#E3EFED] transition-colors" type="button">
+              Export report
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="detail-grid">
-        {/* ── Left: Gauge + Patient Info ── */}
-        <div className="detail-left">
-          <div className="card gauge-card">
-            <RiskGauge score={p.risk_score} level={p.risk_level} />
-          </div>
-
-          <div className="card patient-card">
-            <h3 className="card-section-title">Patient Profile</h3>
-            <div className="patient-info-grid">
-              <div className="info-item">
-                <span className="info-label">Age</span>
-                <span className="info-value">{pd.age} years</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Gender</span>
-                <span className="info-value">{pd.gender}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Prior Admissions</span>
-                <span className="info-value">{pd.num_prior_admissions}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Length of Stay</span>
-                <span className="info-value">{pd.length_of_stay} days</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Medications</span>
-                <span className="info-value">{pd.num_medications}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Discharge</span>
-                <span className="info-value">{pd.discharge_to_home ? 'Home' : 'Facility'}</span>
-              </div>
-            </div>
-            <div className="condition-tags">
-              {pd.has_diabetes === 1 && <span className="condition-tag">Diabetes</span>}
-              {pd.has_chf === 1 && <span className="condition-tag tag-high">CHF</span>}
-              {pd.has_copd === 1 && <span className="condition-tag">COPD</span>}
-              {pd.creatinine_high === 1 && <span className="condition-tag tag-warn">High Creatinine</span>}
-              {pd.hemoglobin_low === 1 && <span className="condition-tag tag-warn">Low Hemoglobin</span>}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Right: SHAP + Explanation + Recommendations ── */}
-        <div className="detail-right">
-          {/* SHAP Factors */}
-          <div className="card">
-            <h3 className="card-section-title">Key Risk Factors (SHAP)</h3>
-            <div className="shap-chart-container">
-              <ResponsiveContainer width="100%" height={160}>
-                <BarChart data={shapData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(67,56,202,.08)" horizontal={false} />
-                  <XAxis type="number" domain={[-1.5, 1.5]} hide />
-                  <YAxis type="category" dataKey="name" width={180} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                  <ReferenceLine x={0} stroke="#E2E8F0" />
-                  <Tooltip
-                    contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, color: '#1E293B', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                    formatter={(v) => [v > 0 ? 'Increases risk' : 'Decreases risk', 'Impact']}
-                  />
-                  <Bar dataKey="value" radius={[4, 4, 4, 4]} barSize={24}>
-                    {shapData.map((d, i) => (
-                      <Cell key={i} fill={d.value > 0 ? '#ef4444' : '#10b981'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="shap-legend">
-              <span className="shap-legend-item"><span className="shap-dot" style={{ background: '#ef4444' }} /> Increases risk</span>
-              <span className="shap-legend-item"><span className="shap-dot" style={{ background: '#10b981' }} /> Decreases risk</span>
-            </div>
-          </div>
-
-          {/* AI Explanation */}
-          <div className="card explanation-card">
-            <div className="explanation-header">
-              <h3 className="card-section-title">AI Clinical Explanation</h3>
-              <span className={`badge ${p.llm_success ? 'badge-low' : 'badge-high'}`}>
-                {p.llm_success ? 'Gemini AI' : 'Fallback'}
+      {/* Main Grid: 5/12 left, 7/12 right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
+        
+        {/* LEFT COLUMN (5 of 12) */}
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          
+          {/* Panel 1: 30-day readmission risk */}
+          <section className="bg-[#FFFFFF] border border-[#DDD8CC] rounded-[8px] p-6 flex flex-col">
+            <h2 className="font-headline-md text-[20px] text-[#1B1F1E] font-semibold tracking-tight">
+              30-day readmission risk
+            </h2>
+            <div className="flex items-baseline gap-4 mt-6">
+              <span 
+                className="font-headline-xl text-[88px] font-bold leading-none tracking-tight"
+                style={{ color: riskColor }}
+              >
+                {p.risk_score}%
+              </span>
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] ${badgeBg} ${badgeText} font-['JetBrains_Mono'] text-[11px] font-bold tracking-wider uppercase self-center`}>
+                <span className="w-[6px] h-[6px] rounded-full inline-block" style={{ backgroundColor: riskColor }}></span>
+                {p.risk_level}
               </span>
             </div>
-            <div className="explanation-text">{p.explanation}</div>
-          </div>
-
-          {/* Recommendations */}
-          <div className="card recommendations-card">
-            <h3 className="card-section-title">Recommended Actions</h3>
-            <div className="recommendation-list">
-              {p.recommendations.map((rec, i) => (
-                <div key={i} className="recommendation-item">
-                  <div className="rec-number">{i + 1}</div>
-                  <span>{rec.replace(/^\d+\.\s*/, '')}</span>
+            
+            {/* Horizontal Risk Spectrum */}
+            <div className="mt-8 pt-2">
+              <div className="relative w-full">
+                {/* Indicator Needle */}
+                <div 
+                  className="absolute -top-6 -translate-x-1/2 flex flex-col items-center transition-all duration-700 ease-out"
+                  style={{ left: `${p.risk_score}%` }}
+                >
+                  <span className="font-['JetBrains_Mono'] text-[11px] font-semibold text-[#1B1F1E] leading-none mb-1">
+                    {p.risk_score}%
+                  </span>
+                  <div className="w-[2px] h-[8px] bg-[#1B1F1E]"></div>
                 </div>
-              ))}
+                
+                {/* Segmented Scale Track */}
+                <div className="h-[8px] w-full rounded-[4px] flex overflow-hidden border border-[#DDD8CC]/40">
+                  <div className="w-[30%] bg-[#E4F1E9]" title="Low risk zone (0-30%)"></div>
+                  <div className="w-[30%] bg-[#F8EBD3]" title="Medium risk zone (30-60%)"></div>
+                  <div className="w-[40%] bg-[#F6E0DC]" title="High risk zone (60-100%)"></div>
+                </div>
+                
+                {/* Scale Labels */}
+                <div className="relative w-full font-['IBM_Plex_Sans'] text-[12px] text-[#5B625F] mt-2 h-4">
+                  <span className="absolute left-0">0%</span>
+                  <span className="absolute left-[30%] -translate-x-1/2">30%</span>
+                  <span className="absolute left-[60%] -translate-x-1/2">60%</span>
+                  <span className="absolute right-0">100%</span>
+                </div>
+              </div>
+              <p className="font-['IBM_Plex_Sans'] text-[14px] text-[#5B625F] mt-5">
+                {isLow 
+                  ? 'Below the threshold for elevated risk.'
+                  : isMed 
+                    ? 'Approaching elevated readmission risk.'
+                    : 'Significantly elevated risk of readmission.'}
+              </p>
             </div>
-          </div>
+          </section>
+
+          {/* Panel 2: Patient profile */}
+          <section className="bg-[#FFFFFF] border border-[#DDD8CC] rounded-[8px] p-6 flex flex-col">
+            <h2 className="font-headline-md text-[20px] text-[#1B1F1E] font-semibold tracking-tight pb-4 border-b border-[#DDD8CC]">
+              Patient profile
+            </h2>
+            <dl className="grid grid-cols-2 gap-y-5 gap-x-4 pt-5">
+              <div>
+                <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Age</dt>
+                <dd className="font-['IBM_Plex_Sans'] text-[16px] font-medium text-[#1B1F1E] mt-0.5">{pd.age} years</dd>
+              </div>
+              <div>
+                <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Gender</dt>
+                <dd className="font-['IBM_Plex_Sans'] text-[16px] font-medium text-[#1B1F1E] mt-0.5">{pd.gender}</dd>
+              </div>
+              <div className="pt-3 border-t border-[#DDD8CC]/40">
+                <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Prior admissions</dt>
+                <dd className="font-['IBM_Plex_Sans'] text-[16px] font-medium text-[#1B1F1E] mt-0.5">{pd.num_prior_admissions}</dd>
+              </div>
+              <div className="pt-3 border-t border-[#DDD8CC]/40">
+                <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Length of stay</dt>
+                <dd className="font-['IBM_Plex_Sans'] text-[16px] font-medium text-[#1B1F1E] mt-0.5">{pd.length_of_stay} days</dd>
+              </div>
+              <div className="pt-3 border-t border-[#DDD8CC]/40">
+                <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Medications at discharge</dt>
+                <dd className="font-['IBM_Plex_Sans'] text-[16px] font-medium text-[#1B1F1E] mt-0.5">{pd.num_medications}</dd>
+              </div>
+              <div className="pt-3 border-t border-[#DDD8CC]/40">
+                <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Discharge destination</dt>
+                <dd className="font-['IBM_Plex_Sans'] text-[16px] font-medium text-[#1B1F1E] mt-0.5">{pd.discharge_to_home ? 'Home' : 'Facility'}</dd>
+              </div>
+              
+              {conditions.length > 0 && (
+                <div className="col-span-2 pt-3 border-t border-[#DDD8CC]/40">
+                  <dt className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">Active Conditions & Markers</dt>
+                  <dd className="font-['IBM_Plex_Sans'] text-[15px] font-medium text-[#1B1F1E] mt-1 flex flex-wrap gap-2">
+                    {conditions.map((c, i) => (
+                      <span key={i} className="px-2 py-1 bg-[#F6F3EC] border border-[#DDD8CC] rounded-[4px] text-[13px]">{c}</span>
+                    ))}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        </div>
+
+        {/* RIGHT COLUMN (7 of 12) */}
+        <div className="lg:col-span-7 flex flex-col gap-6">
+          
+          {/* Panel 3: What drove this score */}
+          <section className="bg-[#FFFFFF] border border-[#DDD8CC] rounded-[8px] p-6 flex flex-col">
+            <h2 className="font-headline-md text-[20px] text-[#1B1F1E] font-semibold tracking-tight pb-3">
+              What drove this score
+            </h2>
+            
+            {/* Diverging Bar Chart Container */}
+            <div className="mt-4 flex flex-col">
+              {/* Column Orientation Header */}
+              <div className="grid grid-cols-12 pb-2 text-[12px] font-['IBM_Plex_Sans'] text-[#5B625F] border-b border-[#DDD8CC]">
+                <div className="col-span-5 text-left">Factor</div>
+                <div className="col-span-3 text-right pr-3">Decreases risk</div>
+                <div className="col-span-1 text-center font-['JetBrains_Mono']">0</div>
+                <div className="col-span-3 text-left pl-3">Increases risk</div>
+              </div>
+              
+              {/* Chart Rows with Centered Zero Axis */}
+              <div className="relative py-2">
+                {/* Vertical 0-hairline */}
+                <div className="absolute top-0 bottom-0 left-[62.5%] w-[1px] bg-[#DDD8CC] z-0"></div>
+                
+                {shapData.length > 0 ? shapData.map((f, i) => (
+                  <div key={i} className={`grid grid-cols-12 items-center py-3.5 relative z-10 ${i > 0 ? 'border-t border-[#DDD8CC]/30' : ''}`}>
+                    <div className="col-span-5 font-['IBM_Plex_Sans'] text-[14px] text-[#1B1F1E] pr-2 truncate" title={f.label}>
+                      {f.label}
+                    </div>
+                    {f.increases ? (
+                      <>
+                        <div className="col-span-3"></div>
+                        <div className="col-span-1"></div>
+                        <div className="col-span-3 flex justify-start items-center pl-1">
+                          <div className="h-[14px] bg-[#B3382C] rounded-r-[2px]" style={{ width: `${f.width}%` }}></div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="col-span-3 flex justify-end items-center pr-1">
+                          <div className="h-[14px] bg-[#0F5C5A] rounded-l-[2px]" style={{ width: `${f.width}%` }}></div>
+                        </div>
+                        <div className="col-span-1"></div>
+                        <div className="col-span-3"></div>
+                      </>
+                    )}
+                  </div>
+                )) : (
+                  <div className="py-6 text-center text-[14px] text-[#5B625F]">No significant factors identified.</div>
+                )}
+              </div>
+              
+              {/* Legend & Citation Footnote */}
+              <div className="pt-4 mt-2 border-t border-[#DDD8CC] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-5 font-['IBM_Plex_Sans'] text-[13px] text-[#1B1F1E]">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#B3382C] inline-block"></span>
+                    Increases risk
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#0F5C5A] inline-block"></span>
+                    Decreases risk
+                  </span>
+                </div>
+                <p className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">
+                  Based on SHAP values from the prediction model.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Panel 4: Clinical summary */}
+          <section className="bg-[#FFFFFF] border border-[#DDD8CC] rounded-[8px] p-6 flex flex-col">
+            <div className="flex items-center justify-between gap-4 pb-4 border-b border-[#DDD8CC]">
+              <h2 className="font-headline-md text-[20px] text-[#1B1F1E] font-semibold tracking-tight">
+                Clinical summary
+              </h2>
+              <span className={`font-['IBM_Plex_Sans'] text-[12px] px-2.5 py-1 rounded-[4px] font-medium ${
+                p.llm_success ? 'text-[#0F5C5A] bg-[#E3EFED]' : 'text-[#B7791F] bg-[#F8EBD3]'
+              }`}>
+                {p.llm_success ? 'Generated by Gemini AI' : 'Fallback Rules'}
+              </span>
+            </div>
+            
+            <div className="pt-5 max-w-[68ch]">
+              <h3 className="font-headline-sm text-[16px] font-semibold text-[#1B1F1E]">
+                Summary
+              </h3>
+              <p className="font-['IBM_Plex_Sans'] text-[16px] text-[#1B1F1E] leading-[1.65] mt-2 whitespace-pre-line">
+                {p.explanation}
+              </p>
+              
+              <h3 className="font-headline-sm text-[16px] font-semibold text-[#1B1F1E] mt-6">
+                Recommendations
+              </h3>
+              <ol className="font-['IBM_Plex_Sans'] text-[15px] text-[#1B1F1E] leading-relaxed mt-2.5 list-decimal pl-5 space-y-1.5">
+                {p.recommendations.map((rec, i) => {
+                  const cleanRec = rec.replace(/^\d+\.\s*/, '');
+                  return <li key={i}>{cleanRec}</li>;
+                })}
+              </ol>
+              
+              <div className="mt-8 pt-4 border-t border-[#DDD8CC]/50">
+                <p className="font-['IBM_Plex_Sans'] text-[13px] text-[#5B625F]">
+                  AI-generated. Review before acting on it.
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>

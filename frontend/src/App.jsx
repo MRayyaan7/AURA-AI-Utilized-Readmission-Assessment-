@@ -8,70 +8,53 @@ import Dashboard from './pages/Dashboard';
 import NewAssessment from './pages/NewAssessment';
 import PredictionDetail from './pages/PredictionDetail';
 import History from './pages/History';
-import { fetchHealth } from './api';
-
-
+import Users from './pages/Users';
 
 function Sidebar() {
-  const [health, setHealth] = useState(null);
-
-  useEffect(() => {
-    fetchHealth()
-      .then(setHealth)
-      .catch(() => setHealth(null));
-
-    const interval = setInterval(() => {
-      fetchHealth()
-        .then(setHealth)
-        .catch(() => setHealth(null));
-    }, 30_000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const online = health?.status === 'ok';
-
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <div className="sidebar-brand">
-          <img 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPIIWOOUtyV2-bn0Ts20S1EsbD393OrsmhIfNLoXSPuLv4o3mWNwBl4A7XeKTESJz3oIfVzU7UfmZw2AO4MVN2zWh8KBwHAUp3QWcY_9YdWpsaIiTGHoQIa7E9_EyjyjaetD8dpIBMeB4kChPokRGOG_utF9ro8Q3s5s1PdK4Ui_jxVz6NtrtNxJvt_cOgbB3mn57YZehPePv8BG1SyzRAM2wgFxY-oo7DsdbQ1bhe7mEM2jRSIB3_" 
-            alt="Doctor Avatar" 
-            className="sidebar-avatar" 
-          />
-          <div>
-            <h1 className="sidebar-title">ReadmitAI</h1>
-            <p className="sidebar-subtitle">Clinical Analytics</p>
+    <aside className="fixed left-0 top-0 h-screen w-[232px] bg-[#FFFFFF] border-r border-[#DDD8CC] z-40 flex flex-col justify-between select-none">
+      <div className="flex flex-col">
+        <div className="pt-7 pb-6 px-5 border-b border-[#DDD8CC]">
+          <div className="font-headline-lg text-headline-lg font-semibold tracking-wide text-[#0F5C5A] leading-tight">AURA</div>
+          <div className="text-[12px] leading-4 text-[#5B625F] mt-1">AI-Utilized Readmission Assessment</div>
+        </div>
+        <nav className="flex flex-col py-3">
+          <NavLink 
+            to="/dashboard" 
+            end 
+            className={({ isActive }) => `flex items-center h-10 px-5 text-[13px] leading-none transition-colors border-l-2 ${isActive ? 'bg-[#E3EFED] text-[#0F5C5A] border-[#0F5C5A] font-semibold' : 'text-[#5B625F] hover:bg-[#F6F3EC] hover:text-[#1B1F1E] border-transparent'}`}
+          >
+            Dashboard
+          </NavLink>
+          <NavLink 
+            to="/assess" 
+            className={({ isActive }) => `flex items-center h-10 px-5 text-[13px] leading-none transition-colors border-l-2 ${isActive ? 'bg-[#E3EFED] text-[#0F5C5A] border-[#0F5C5A] font-semibold' : 'text-[#5B625F] hover:bg-[#F6F3EC] hover:text-[#1B1F1E] border-transparent'}`}
+          >
+            New Assessment
+          </NavLink>
+          <NavLink 
+            to="/history" 
+            className={({ isActive }) => `flex items-center h-10 px-5 text-[13px] leading-none transition-colors border-l-2 ${isActive ? 'bg-[#E3EFED] text-[#0F5C5A] border-[#0F5C5A] font-semibold' : 'text-[#5B625F] hover:bg-[#F6F3EC] hover:text-[#1B1F1E] border-transparent'}`}
+          >
+            History
+          </NavLink>
+          <NavLink 
+            to="/users" 
+            className={({ isActive }) => `flex items-center justify-between h-10 px-5 text-[13px] leading-none transition-colors border-l-2 ${isActive ? 'bg-[#E3EFED] text-[#0F5C5A] border-[#0F5C5A] font-semibold' : 'text-[#5B625F] hover:bg-[#F6F3EC] hover:text-[#1B1F1E] border-transparent'}`}
+          >
+            <span>Users</span>
+            <span className="font-['IBM_Plex_Mono'] text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-[#DDD8CC] text-[#5B625F] bg-[#F6F3EC]">Admin</span>
+          </NavLink>
+        </nav>
+      </div>
+      <div className="p-5 border-t border-[#DDD8CC] bg-[#FFFFFF]">
+        <div className="flex flex-col">
+          <div className="text-[13px] font-semibold text-[#1B1F1E] leading-snug">Dr. Eleanor Vance</div>
+          <div className="text-[12px] text-[#5B625F] leading-tight mt-0.5">Attending Physician</div>
+          <div className="mt-3 pt-3 border-t border-[#DDD8CC]/50">
+            <NavLink to="/login" className="text-[12px] text-[#5B625F] hover:text-[#0F5C5A] transition-colors inline-block underline-offset-2 hover:underline">Sign out</NavLink>
           </div>
         </div>
-        <button className="sidebar-btn-generate">
-          Generate Report
-        </button>
-      </div>
-
-      <nav className="sidebar-nav">
-        <NavLink to="/dashboard" end className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <span className="material-symbols-outlined nav-icon" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
-          Dashboard
-        </NavLink>
-        <NavLink to="/assess" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <span className="material-symbols-outlined nav-icon">add_chart</span>
-          New Assessment
-        </NavLink>
-        <NavLink to="/history" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <span className="material-symbols-outlined nav-icon">history</span>
-          History
-        </NavLink>
-      </nav>
-
-      <div className="sidebar-footer">
-        <div className="sidebar-status">
-          <span className={`status-dot ${online ? 'online' : 'offline'}`} />
-          <span>System Status</span>
-        </div>
-        <p className={`status-text ${online ? 'online' : 'offline'}`}>
-          {online ? 'Engine Online' : 'Connecting...'}
-        </p>
       </div>
     </aside>
   );
@@ -80,18 +63,30 @@ function Sidebar() {
 function AppLayout() {
   const location = useLocation();
   return (
-    <div className="app-layout">
+    <div className="bg-[#F6F3EC] text-[#1B1F1E] antialiased min-h-screen selection:bg-[#E3EFED] selection:text-[#0F5C5A]">
       <Sidebar />
-      <main className="main-content">
-        <div key={location.pathname} className="page-enter">
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/assess" element={<NewAssessment />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/prediction/:id" element={<PredictionDetail />} />
-          </Routes>
-        </div>
-      </main>
+      <div className="pl-[232px] min-h-screen bg-[#F6F3EC]">
+        <header className="fixed top-0 left-[232px] right-0 h-14 bg-[#FFFFFF] border-b border-[#DDD8CC] z-30 flex items-center justify-end px-8">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-[#0F5C5A] flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-[18px]">person</span>
+            </div>
+          </div>
+        </header>
+        <main className="relative pt-14 bg-[#F6F3EC] min-h-screen">
+          <div className="p-8 max-w-[1120px] mx-auto w-full">
+            <div key={location.pathname} className="flex flex-col w-full page-enter">
+              <Routes>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/assess" element={<NewAssessment />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/prediction/:id" element={<PredictionDetail />} />
+                <Route path="/users" element={<Users />} />
+              </Routes>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
@@ -100,14 +95,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Standalone pages (no sidebar) */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-
-        {/* App pages (with sidebar) */}
         <Route path="/*" element={<AppLayout />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
