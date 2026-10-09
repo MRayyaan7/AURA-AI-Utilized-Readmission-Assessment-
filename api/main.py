@@ -11,9 +11,13 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+from api.db.session import get_db
+from api.db import crud
+import json
 
 from api.agent import engine, assess_patient
 
@@ -95,9 +99,9 @@ class HealthResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# In-memory prediction store (replaced with DB in Phase 2)
+# Database Models are used internally
 # ---------------------------------------------------------------------------
-_predictions: list[dict] = []
+
 
 
 # ---------------------------------------------------------------------------
@@ -165,12 +169,34 @@ def health_check():
         ml_model_loaded=ml_loaded,
         llm_available=engine._llm is not None,
         active_llm_model=engine._active_model,
-        total_predictions=len(_predictions),
+        total_predictions=0, # Removed for simplicity, or we can inject DB session here.
+    )
+
+
+def serialize_assessment(assessment):
+    try:
+        llm_data = json.loads(assessment.llm_explanation) if assessment.llm_explanation else {}
+        explanation = llm_data.get("explanation", "")
+        recommendations = llm_data.get("recommendations", [])
+    except Exception:
+        explanation = assessment.llm_explanation or ""
+        recommendations = []
+        
+    return PredictionResult(
+        id=str(assessment.id),
+        timestamp=assessment.created_at.isoformat(),
+        patient_data=assessment.input_features,
+        risk_score=assessment.risk_score,
+        risk_level=assessment.risk_level,
+        top_factors=assessment.shap_values,
+        explanation=explanation,
+        recommendations=recommendations,
+        llm_success=assessment.llm_success,
     )
 
 
 @app.post("/api/v1/predict", response_model=PredictionResult, tags=["predictions"])
-def predict(payload: PatientInput):
+def predict(payload: PatientInput, db: Session = Depends(get_db)):
     """Run a readmission risk assessment for a single patient."""
     try:
         result = assess_patient(payload.model_dump())
@@ -178,47 +204,34 @@ def predict(payload: PatientInput):
         logger.exception("Prediction failed")
         raise HTTPException(status_code=500, detail="Prediction engine error")
 
-    prediction = PredictionResult(
-        id=str(uuid4()),
-        timestamp=datetime.now(timezone.utc).isoformat(),
-        patient_data=payload.model_dump(),
-        risk_score=result["risk_score"],
-        risk_level=result["risk_level"],
-        top_factors=result["top_factors"],
-        explanation=result["explanation"],
-        recommendations=result["recommendations"],
-        llm_success=result["llm_success"],
-    )
-
-    _predictions.append(prediction.model_dump())
+    assessment = crud.create_assessment(db, payload.model_dump(), result)
+    
     logger.info(
         "Prediction %s: score=%.1f%% level=%s",
-        prediction.id,
-        prediction.risk_score,
-        prediction.risk_level,
+        assessment.id,
+        assessment.risk_score,
+        assessment.risk_level,
     )
-    return prediction
+    return serialize_assessment(assessment)
 
 
 @app.get(
     "/api/v1/predictions",
-    response_model=list[PredictionResult],
     tags=["predictions"],
 )
 def list_predictions(
-    limit: int = Query(20, ge=1, le=100, description="Max results to return"),
-    offset: int = Query(0, ge=0, description="Number of results to skip"),
-    risk_level: Optional[str] = Query(
-        None, description="Filter by risk level (HIGH RISK, MEDIUM RISK, LOW RISK)"
-    ),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    risk_level: Optional[str] = Query(None),
+    q: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
 ):
-    """List past predictions, newest first, with optional filtering."""
-    results = list(reversed(_predictions))
-
-    if risk_level:
-        results = [r for r in results if r["risk_level"] == risk_level.upper()]
-
-    return results[offset : offset + limit]
+    """List past predictions with pagination, search, and optional filtering."""
+    results = crud.list_assessments(db, page=page, page_size=page_size, risk_level=risk_level, q=q)
+    return {
+        "items": [serialize_assessment(r) for r in results["items"]],
+        "total": results["total"]
+    }
 
 
 @app.get(
@@ -226,42 +239,23 @@ def list_predictions(
     response_model=PredictionResult,
     tags=["predictions"],
 )
-def get_prediction(prediction_id: str):
+def get_prediction(prediction_id: str, db: Session = Depends(get_db)):
     """Get a specific prediction by ID."""
-    for pred in _predictions:
-        if pred["id"] == prediction_id:
-            return pred
-    raise HTTPException(status_code=404, detail="Prediction not found")
+    assessment = crud.get_assessment(db, prediction_id)
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Prediction not found")
+    return serialize_assessment(assessment)
 
 
-@app.get("/api/v1/stats/dashboard", response_model=DashboardStats, tags=["dashboard"])
-def dashboard_stats():
+@app.get("/api/v1/stats/dashboard", tags=["dashboard"])
+def dashboard_stats(db: Session = Depends(get_db)):
     """Return aggregate statistics for the dashboard."""
-    total = len(_predictions)
-    if total == 0:
-        return DashboardStats(
-            total_predictions=0,
-            high_risk_count=0,
-            medium_risk_count=0,
-            low_risk_count=0,
-            average_risk_score=0.0,
-            llm_success_rate=0.0,
-        )
+    stats = crud.get_dashboard_stats(db)
+    # The frontend expects 'last_10' array as objects of PredictionResult but DashboardStats Pydantic model might drop it.
+    # We will return the dict directly to ensure we can append `last_10` without redefining the Pydantic model for now.
+    stats['last_10'] = [serialize_assessment(r).model_dump() for r in stats['last_10']]
+    return stats
 
-    high = sum(1 for p in _predictions if p["risk_level"] == "HIGH RISK")
-    medium = sum(1 for p in _predictions if p["risk_level"] == "MEDIUM RISK")
-    low = sum(1 for p in _predictions if p["risk_level"] == "LOW RISK")
-    avg_score = sum(p["risk_score"] for p in _predictions) / total
-    llm_ok = sum(1 for p in _predictions if p["llm_success"]) / total
-
-    return DashboardStats(
-        total_predictions=total,
-        high_risk_count=high,
-        medium_risk_count=medium,
-        low_risk_count=low,
-        average_risk_score=round(avg_score, 1),
-        llm_success_rate=round(llm_ok, 2),
-    )
 
 
 # Keep the old endpoint for backwards compatibility

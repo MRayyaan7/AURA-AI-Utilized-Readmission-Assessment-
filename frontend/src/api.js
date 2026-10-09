@@ -34,10 +34,14 @@ export function predict(patientData) {
 }
 
 /** List predictions (newest first) */
-export function fetchPredictions({ limit = 20, offset = 0, riskLevel } = {}) {
-  const params = new URLSearchParams({ limit, offset });
+export async function fetchPredictions({ limit = 20, offset = 0, riskLevel, q } = {}) {
+  const page_size = limit;
+  const page = Math.floor(offset / limit) + 1;
+  const params = new URLSearchParams({ page, page_size });
   if (riskLevel) params.set('risk_level', riskLevel);
-  return request(`/predictions?${params}`);
+  if (q) params.set('q', q);
+  const data = await request(`/predictions?${params}`);
+  return Array.isArray(data) ? data : (data.items || []);
 }
 
 /** Get a single prediction by ID */

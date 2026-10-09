@@ -41,6 +41,12 @@ Follow these instructions to get a copy of the project up and running on your lo
    Create a `.env` file in the root directory and add your Google API key:
    ```env
    GOOGLE_API_KEY=your_gemini_api_key_here
+   # DATABASE_URL=postgresql+psycopg://aura:aura@localhost:5432/aura  # uncomment to use PostgreSQL
+   ```
+
+3. **(Optional) Start PostgreSQL using Docker:**
+   ```bash
+   docker compose up -d
    ```
 
 ---
@@ -64,7 +70,12 @@ The backend is built with FastAPI and runs on port `8000`.
    pip install -r requirements.txt
    ```
 
-3. **Start the FastAPI server:**
+3. **Run Database Migrations:**
+   ```bash
+   alembic upgrade head
+   ```
+
+4. **Start the FastAPI server:**
    ```bash
    uvicorn api.main:app --reload
    ```
